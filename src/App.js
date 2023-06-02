@@ -25,6 +25,8 @@ import { useTable, useSortBy, useFilters, usePagination } from "react-table";
 import makeData from "./makeData";
 import generateExcel from "zipcelx";
 
+import { utils, writeFileXLSX } from 'xlsx';
+
 // This is a custom filter UI for selecting
 // a unique option from a list
 function SelectColumnFilter({
@@ -200,6 +202,15 @@ function Table({ columns, data }) {
     }
   }
 
+  function getSheetJSHeader(column) {
+    if (column.totalHeaderCount === 1) {
+      return [column.Header];
+    } else {
+      const span = [...Array(column.totalHeaderCount - 1)].map(x => "");
+      return [column.Header, ...span];
+    }
+  }
+
   function getExcel() {
     const config = {
       filename: "general-ledger-Q1",
@@ -246,14 +257,52 @@ function Table({ columns, data }) {
         }
       ]);
     }
-
+    console.log(dataSet);
     return generateExcel(config);
+  }
+
+  function getSheetJSExcel() {
+    const dataSet = [];
+
+    headerGroups.forEach(headerGroup => {
+      const headerRow = [];
+      if (headerGroup.headers) {
+        headerGroup.headers.forEach(column => {
+          headerRow.push(...getSheetJSHeader(column));
+        });
+      }
+
+      dataSet.push(headerRow);
+    });
+
+
+      // FILTERED ROWS
+      if (rows.length > 0) {
+        rows.forEach(row => {
+          prepareRow(row);
+          const dataRow = [];
+
+          row.cells.forEach(cell =>
+            dataRow.push(renderToString(cell.render('Cell')))
+          );
+
+          dataSet.push(dataRow);
+        });
+      } else {
+        dataSet.push(["No data"]);
+      }
+      console.log(dataSet);
+
+      const ws = utils.aoa_to_sheet(dataSet);
+      const wb = utils.book_new();
+      utils.book_append_sheet(wb, ws, "Data");
+      writeFileXLSX(wb, "ReactTableSheetJSExportData.xlsx");
   }
 
   // Render the UI for your table
   return (
     <Paper>
-      <button onClick={getExcel}>Get Excel</button>
+      <button onClick={getSheetJSExcel}>Get Excel</button>
       <div style={{ overflowX: "auto" }}>
         <MaUTable
           {...getTableProps()}

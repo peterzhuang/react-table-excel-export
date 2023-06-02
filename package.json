@@ -15,6 +15,7 @@
     "react-scripts": "4.0.3",
     "react-table": "next",
     "sass": "^1.62.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
     "zipcelx": "1.6.2"
   },
   "devDependencies": {
