@@ -1,5 +1,5 @@
 import React from "react";
-
+import { renderToString } from 'react-dom/server'
 import CssBaseline from "@material-ui/core/CssBaseline";
 import MaUTable from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -226,12 +226,13 @@ function Table({ columns, data }) {
     // FILTERED ROWS
     if (rows.length > 0) {
       rows.forEach(row => {
+        prepareRow(row);
         const dataRow = [];
 
-        Object.values(row.values).forEach(value =>
+        row.cells.forEach(cell =>
           dataRow.push({
-            value,
-            type: typeof value === "number" ? "number" : "string"
+            value: renderToString(cell.render('Cell')),
+            type:  "string"
           })
         );
 
@@ -448,79 +449,84 @@ function TablePaginationActions({
 }
 
 function App() {
-  // const columns = React.useMemo(
-  //   () => [
-  //     {
-  //       Header: "Name",
-  //       columns: [
-  //         {
-  //           Header: "First Name",
-  //           accessor: "firstName",
-  //         },
-  //         {
-  //           Header: "Last Name",
-  //           accessor: "lastName",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       Header: "Info",
-  //       columns: [
-  //         {
-  //           Header: "Age",
-  //           accessor: "age",
-  //         },
-  //         {
-  //           Header: "Visits",
-  //           accessor: "visits",
-  //         },
-  //         {
-  //           Header: "Status",
-  //           accessor: "status",
-  //           Filter: SelectColumnFilter,
-  //           filter: "includes",
-  //         },
-  //         {
-  //           Header: "Profile Progress",
-  //           accessor: "progress",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  //   [],
-  // );
   const columns = React.useMemo(
     () => [
       {
-        Header: "First Name",
-        accessor: "firstName",
-        show: false
+        Header: "Name",
+        columns: [
+          {
+            Header: "First Name",
+            accessor: "firstName",
+            Cell: ({ row }) => {
+              return  (<>
+              <div>Attention:</div>
+              <div>{`Hi, ${row.original.firstName}`}</div></>)
+            }
+          },
+          {
+            Header: "Last Name",
+            accessor: "lastName",
+          },
+        ],
       },
       {
-        Header: "Last Name",
-        accessor: "lastName"
+        Header: "Info",
+        columns: [
+          {
+            Header: "Age",
+            accessor: "age",
+          },
+          {
+            Header: "Visits",
+            accessor: "visits",
+          },
+          {
+            Header: "Status",
+            accessor: "status",
+            Filter: SelectColumnFilter,
+            filter: "includes",
+          },
+          {
+            Header: "Profile Progress",
+            accessor: "progress",
+          },
+        ],
       },
-      {
-        Header: "Age",
-        accessor: "age"
-      },
-      {
-        Header: "Visits",
-        accessor: "visits"
-      },
-      {
-        Header: "Status",
-        accessor: "status",
-        Filter: SelectColumnFilter,
-        filter: "includes"
-      },
-      {
-        Header: "Profile Progress",
-        accessor: "progress"
-      }
     ],
-    []
+    [],
   );
+  // const columns = React.useMemo(
+  //   () => [
+  //     {
+  //       Header: "First Name",
+  //       accessor: "firstName",
+  //       show: false
+  //     },
+  //     {
+  //       Header: "Last Name",
+  //       accessor: "lastName"
+  //     },
+  //     {
+  //       Header: "Age",
+  //       accessor: "age"
+  //     },
+  //     {
+  //       Header: "Visits",
+  //       accessor: "visits"
+  //     },
+  //     {
+  //       Header: "Status",
+  //       accessor: "status",
+  //       Filter: SelectColumnFilter,
+  //       filter: "includes"
+  //     },
+  //     {
+  //       Header: "Profile Progress",
+  //       accessor: "progress"
+  //     }
+  //   ],
+  //   []
+  // );
 
   const data = React.useMemo(() => makeData(50), []);
 
